@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Décompte dynamique</title>
+<style>
+  body {
+    margin: 0; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #121212;
+    color: #eee;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    min-height: 100vh;
+  }
+  #settings {
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+  input[type="date"], input[type="time"] {
+    padding: 0.4rem;
+    border-radius: 4px;
+    border: none;
+    font-size: 1.1rem;
+    background-color: #222;
+    color: #eee;
+  }
+  button {
+    background-color: #444;
+    color: #eee;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    font-size: 1.1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: #666;
+  }
+  .countdown {
+    font-size: 3rem;
+    font-weight: bold;
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 2rem;
+  }
+  .unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 60px;
+  }
+  .number {
+    font-size: 3rem;
+    line-height: 1;
+  }
+  .label {
+    font-size: 1rem;
+    opacity: 0.7;
+  }
+</style>
+</head>
+<body>
+
+<div id="settings">
+  <input type="date" id="dateInput" />
+  <input type="time" id="timeInput" step="1" />
+  <button id="startBtn">Start</button>
+</div>
+
+<div class="countdown" id="countdown" style="display:none;">
+  <div class="unit" id="daysUnit">
+    <div class="number" id="days">0</div>
+    <div class="label">Days</div>
+  </div>
+  <div class="unit" id="hoursUnit">
+    <div class="number" id="hours">0</div>
+    <div class="label">Hours</div>
+  </div>
+  <div class="unit" id="minutesUnit">
+    <div class="number" id="minutes">0</div>
+    <div class="label">Minutes</div>
+  </div>
+  <div class="unit" id="secondsUnit">
+    <div class="number" id="seconds">0</div>
+    <div class="label">Seconds</div>
+  </div>
+</div>
+
+<button id="backBtn" style="display:none;">Back</button>
+
+<script>
+  const dateInput = document.getElementById('dateInput');
+  const timeInput = document.getElementById('timeInput');
+  const startBtn = document.getElementById('startBtn');
+  const backBtn = document.getElementById('backBtn');
+  const countdown = document.getElementById('countdown');
+  const settings = document.getElementById('settings');
+
+  const daysUnit = document.getElementById('daysUnit');
+  const hoursUnit = document.getElementById('hoursUnit');
+  const minutesUnit = document.getElementById('minutesUnit');
+  const secondsUnit = document.getElementById('secondsUnit');
+
+  let countdownInterval;
+
+  function updateCountdown() {
+    const targetDateTime = new Date(dateInput.value + 'T' + timeInput.value);
+    const now = new Date();
+
+    let diff = (targetDateTime - now) / 1000; // seconds difference
+
+    if(diff <= 0) {
+      clearInterval(countdownInterval);
+      days.textContent = '0';
+      hours.textContent = '0';
+      minutes.textContent = '0';
+      seconds.textContent = '0';
+      alert("Time's up!");
+      showSettings();
+      return;
+    }
+
+    const daysCount = Math.floor(diff / 86400);
+    diff -= daysCount * 86400;
+
+    const hoursCount = Math.floor(diff / 3600);
+    diff -= hoursCount * 3600;
+
+    const minutesCount = Math.floor(diff / 60);
+    diff -= minutesCount * 60;
+
+    const secondsCount = Math.floor(diff);
+
+    days.textContent = daysCount;
+    hours.textContent = hoursCount;
+    minutes.textContent = minutesCount;
+    seconds.textContent = secondsCount;
+
+    if (daysCount < 1) {
+      daysUnit.style.display = 'none';
+    } else {
+      daysUnit.style.display = 'flex';
+    }
+
+    if (daysCount < 1 && hoursCount < 1) {
+      hoursUnit.style.display = 'none';
+    } else {
+      hoursUnit.style.display = 'flex';
+    }
+
+    if (daysCount < 1 && hoursCount < 1 && minutesCount < 1) {
+      minutesUnit.style.display = 'none';
+    } else {
+      minutesUnit.style.display = 'flex';
+    }
+  }
+
+  function startCountdown() {
+    if (!dateInput.value || !timeInput.value) {
+      alert("Please select a date and time.");
+      return;
+    }
+    settings.style.display = 'none';
+    countdown.style.display = 'flex';
+    backBtn.style.display = 'inline-block';
+    updateCountdown();
+    countdownInterval = setInterval(updateCountdown, 1000);
+  }
+
+  function showSettings() {
+    clearInterval(countdownInterval);
+    settings.style.display = 'flex';
+    countdown.style.display = 'none';
+    backBtn.style.display = 'none';
+  }
+
+  startBtn.addEventListener('click', startCountdown);
+  backBtn.addEventListener('click', showSettings);
+</script>
+
+</body>
+</html>
